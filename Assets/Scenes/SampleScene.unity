@@ -153,6 +153,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   blockGameObject: {fileID: 5805531260028310435, guid: 3783abece6cf2b044b3986882f29ee87, type: 3}
+  objectToSpawn: {fileID: 3433554811931329843, guid: 9339e77d3471acd48afa66103a2e3e9f, type: 3}
 --- !u!4 &155736036
 Transform:
   m_ObjectHideFlags: 0
