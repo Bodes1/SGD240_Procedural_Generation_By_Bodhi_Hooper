@@ -12,15 +12,25 @@ public class GenerateGrid : MonoBehaviour
     [SerializeField]
     private GameObject objectToSpawn;
 
+    // Player character
+    [SerializeField]
+    private GameObject player;
+
     // Defind world size
-    private int worldSizeX = 40;
-    private int worldSizeZ = 40;
+    private int worldSizeX = 10;
+    private int worldSizeZ = 10;
 
     // Height veriation
     private int noiseHeight = 5;
 
     // Space between cubes
-    private float gridOffset = 1.1f;
+    //private float gridOffset = 1.1f;
+
+    // Player spawn location
+    private Vector3 startPosition;
+
+    // Contains info of player disanst from spawn for the cubes
+    private Hashtable blockContainer = new Hashtable();
 
     // List to know where the cubes positions are
     private List<Vector3> blockPositions = new List<Vector3>();
@@ -29,21 +39,73 @@ public class GenerateGrid : MonoBehaviour
     void Start()
     {
         // Looping til 'x' and 'z' match world size
-        for (int x = 0; x < worldSizeX; x++) 
+        for (int x = -worldSizeX; x < worldSizeX; x++) 
         {
-            for (int z = 0; z < worldSizeZ; z++)
+            for (int z = -worldSizeZ; z < worldSizeZ; z++)
             {
-                Vector3 pos = new Vector3 (x * gridOffset, generateNoise(x, z, 8f) * noiseHeight, z * gridOffset);
+                Vector3 pos = new Vector3 (x * 1 + startPosition.x, generateNoise(x, z, 8f) * noiseHeight, z * 1 + startPosition.z);
 
                 GameObject block = Instantiate (blockGameObject, pos, Quaternion.identity) as GameObject;
+
+                blockContainer.Add(pos, block);
 
                 blockPositions.Add(block.transform.position);
 
                 block.transform.SetParent(this.transform);
             }
         }
-        SpawnObject();
+        //SpawnObject();
     }
+
+    // Checks if player has move further then the world size
+    private void Update()
+    {
+        if (Mathf.Abs(xPlayerMove) >= 1 || Mathf.Abs(zPlayerMove) >= 1)
+        {
+            // Add to the grid around the player
+            for (int x = -worldSizeX; x < worldSizeX; x++)
+            {
+                for (int z = -worldSizeZ; z < worldSizeZ; z++)
+                {
+                    // Changed 'Vector3' grid spawn from start location to player location AND generate noise around the player
+                    Vector3 pos = new Vector3(x * 1 + xPlayerLocation, generateNoise(x + xPlayerLocation, z + zPlayerLocation, 8f) * noiseHeight, z * 1 + zPlayerLocation);
+
+                    // Checks if already has a cube there
+                    if (!blockContainer.ContainsKey(pos))
+                    {
+                        GameObject block = Instantiate(blockGameObject, pos, Quaternion.identity) as GameObject;
+
+                        blockContainer.Add(pos, block);
+
+                        blockPositions.Add(block.transform.position);
+
+                        block.transform.SetParent(this.transform);
+                    }
+
+                    
+                }
+            }
+        }
+    }
+
+    // Info on the distant the player travals in (X)
+    private int xPlayerMove
+    {
+        get
+        {
+            return (int)(player.transform.position.x - startPosition.x);
+        }
+    }
+
+    // Info on the distant the player travals in (Z)
+    private int zPlayerMove
+    {
+        get
+        {
+            return (int)(player.transform.position.z - startPosition.z);
+        }
+    }
+
 
     // Amount of objects to spawn
     private void SpawnObject()
@@ -51,6 +113,24 @@ public class GenerateGrid : MonoBehaviour
         for(int i = 0; i < 20;  i++) 
         {
             GameObject toPlaceObject = Instantiate(objectToSpawn, ObjectSpawnLocation(), Quaternion.identity);
+        }
+    }
+
+    // Info on the players position (X)
+    private int xPlayerLocation
+    {
+        get
+        {
+            return (int) Mathf.Floor(player.transform.position.x);
+        }
+    }
+
+    // Info on the players position (Z)
+    private int zPlayerLocation
+    {
+        get
+        {
+            return (int) Mathf.Floor(player.transform.position.z);
         }
     }
 
