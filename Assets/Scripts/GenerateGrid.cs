@@ -24,7 +24,7 @@ public class GenerateGrid : MonoBehaviour
     private int noiseHeight = 5;
 
     // Space between cubes
-    //private float gridOffset = 1.1f;
+    private float gridOffset = 1.1f;
 
     // Player spawn location
     private Vector3 startPosition;
@@ -54,7 +54,7 @@ public class GenerateGrid : MonoBehaviour
                 block.transform.SetParent(this.transform);
             }
         }
-        //SpawnObject();
+        SpawnObject();
     }
 
     // Checks if player has move further then the world size
