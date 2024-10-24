@@ -24,7 +24,7 @@ public class GenerateGrid : MonoBehaviour
     private int noiseHeight = 5;
 
     // Space between cubes
-    private float gridOffset = 1.1f;
+    //private float gridOffset = 1.1f;
 
     // Player spawn location
     private Vector3 startPosition;
@@ -80,12 +80,16 @@ public class GenerateGrid : MonoBehaviour
                         blockPositions.Add(block.transform.position);
 
                         block.transform.SetParent(this.transform);
+
+                        SpawnMoreObject();
                     }
 
                     
                 }
             }
+            
         }
+        SpawnMoreObject();
     }
 
     // Info on the distant the player travals in (X)
@@ -111,6 +115,17 @@ public class GenerateGrid : MonoBehaviour
     private void SpawnObject()
     {
         for(int i = 0; i < 20;  i++) 
+        {
+            GameObject toPlaceObject = Instantiate(objectToSpawn, ObjectSpawnLocation(), Quaternion.identity);
+        }
+    }
+
+    // Spawn more objects when the world exspans
+    private void SpawnMoreObject()
+    {
+        int spawnChance = Random.Range(0, 11);
+
+        if (spawnChance == 0) 
         {
             GameObject toPlaceObject = Instantiate(objectToSpawn, ObjectSpawnLocation(), Quaternion.identity);
         }
