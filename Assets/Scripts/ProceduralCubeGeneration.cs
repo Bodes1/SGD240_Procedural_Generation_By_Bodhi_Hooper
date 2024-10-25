@@ -22,8 +22,17 @@ public class ProceduralCubeGeneration : MonoBehaviour
     public int waterLevel = 4;  // Y level for water
     public int stoneHeightThreshold = 12;  // Y level for stone generation
 
+    // Seed for random generation
+    public int seed;
+
     void Start()
     {
+        // Initialize the random seed
+        if (seed == 0)
+        {
+            seed = Random.Range(1, 100000);  // Generate a random seed if none is provided
+        }
+
         GenerateWorld();
     }
 
@@ -48,8 +57,8 @@ public class ProceduralCubeGeneration : MonoBehaviour
                 int worldX = x + (chunkX * chunkSize);
                 int worldZ = z + (chunkZ * chunkSize);
 
-                // Generate terrain height using Perlin noise
-                float perlinValue = Mathf.PerlinNoise(worldX * noiseScale, worldZ * noiseScale);
+                // Apply seed offset to the Perlin noise for randomization
+                float perlinValue = Mathf.PerlinNoise((worldX + seed) * noiseScale, (worldZ + seed) * noiseScale);
                 int terrainHeight = Mathf.FloorToInt(perlinValue * heightMultiplier);
 
                 // Generate terrain up to the calculated terrain height
