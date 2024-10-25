@@ -188,8 +188,8 @@ MonoBehaviour:
   worldSizeInChunks: 4
   cubeSize: 1
   heightMultiplier: 20
-  noiseScale: 0.1
-  waterLevel: 4
+  noiseScale: 0.05
+  waterLevel: 5
   stoneHeightThreshold: 12
 --- !u!1 &705507993
 GameObject:

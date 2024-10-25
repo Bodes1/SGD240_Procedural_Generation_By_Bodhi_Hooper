@@ -48,12 +48,12 @@ public class ProceduralCubeGeneration : MonoBehaviour
                 int worldX = x + (chunkX * chunkSize);
                 int worldZ = z + (chunkZ * chunkSize);
 
-                // Generate height using Perlin noise
+                // Generate terrain height using Perlin noise
                 float perlinValue = Mathf.PerlinNoise(worldX * noiseScale, worldZ * noiseScale);
                 int terrainHeight = Mathf.FloorToInt(perlinValue * heightMultiplier);
 
-                // Generate vertical cubes (like a column)
-                for (int y = 0; y < terrainHeight; y++)
+                // Generate terrain up to the calculated terrain height
+                for (int y = 0; y < worldHeight; y++)
                 {
                     if (y <= terrainHeight)
                     {
@@ -74,7 +74,6 @@ public class ProceduralCubeGeneration : MonoBehaviour
                             CreateCube(worldX, y, worldZ, Color.gray);  // Gray for stone
                         }
                     }
-
                     else if (y < waterLevel)
                     {
                         // Fill with water up to the water level, even if it's above the terrain height
