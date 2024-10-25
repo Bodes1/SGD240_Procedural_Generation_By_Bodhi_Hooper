@@ -25,6 +25,10 @@ public class ProceduralCubeGeneration : MonoBehaviour
     // Seed for random generation
     public int seed;
 
+    // Tree spawn probability
+    [Range(0f, 1f)]
+    public float treeSpawnChance = 0.10f;  // 10% chance for tree
+
     void Start()
     {
         // Initialize the random seed
@@ -83,11 +87,18 @@ public class ProceduralCubeGeneration : MonoBehaviour
                             CreateCube(worldX, y, worldZ, Color.gray);  // Gray for stone
                         }
                     }
+
                     else if (y < waterLevel)
                     {
                         // Fill with water up to the water level, even if it's above the terrain height
                         CreateCube(worldX, y, worldZ, Color.blue);
                     }
+                }
+
+                // Check if a tree should be placed on top of this column
+                if (terrainHeight >= waterLevel && terrainHeight < stoneHeightThreshold && Random.value < treeSpawnChance)
+                {
+                    PlaceTree(worldX, terrainHeight + 1, worldZ);
                 }
             }
         }
@@ -102,5 +113,22 @@ public class ProceduralCubeGeneration : MonoBehaviour
         // Set the cube's color
         Renderer cubeRenderer = cube.GetComponent<Renderer>();
         cubeRenderer.material.color = blockColor;
+    }
+
+    void PlaceTree(int x, int y, int z)
+    {
+        // Create a simple tree with 3 stacked cubes to represent the trunk
+        Color trunkColor = new Color(0.55f, 0.27f, 0.07f);  // Brown color for trunk
+
+        // Place 3 cubes as the tree trunk
+        for (int i = 0; i < 3; i++)
+        {
+            CreateCube(x, y + i, z, trunkColor);
+        }
+
+        Color leafColor = new Color(0f, 0.5f, 0f); // Dark green for the leaf
+
+        // Add a green "leaf" cube at the top
+        CreateCube(x, y + 3, z, leafColor);
     }
 }
