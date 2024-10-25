@@ -74,6 +74,12 @@ public class ProceduralCubeGeneration : MonoBehaviour
                             CreateCube(worldX, y, worldZ, Color.gray);  // Gray for stone
                         }
                     }
+
+                    else if (y < waterLevel)
+                    {
+                        // Fill with water up to the water level, even if it's above the terrain height
+                        CreateCube(worldX, y, worldZ, Color.blue);
+                    }
                 }
             }
         }
