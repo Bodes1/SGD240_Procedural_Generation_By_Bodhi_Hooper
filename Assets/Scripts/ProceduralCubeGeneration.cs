@@ -128,7 +128,7 @@ public class ProceduralCubeGeneration : MonoBehaviour
 
         Color leafColor = new Color(0f, 0.5f, 0f); // Dark green for the leaf
 
-        // Add a green "leaf" cube at the top
+        // Add a green leaf cube at the top
         CreateCube(x, y + 3, z, leafColor);
     }
 }

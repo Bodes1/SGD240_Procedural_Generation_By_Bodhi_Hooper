@@ -134,6 +134,7 @@ GameObject:
   - component: {fileID: 155736036}
   - component: {fileID: 155736035}
   - component: {fileID: 155736037}
+  - component: {fileID: 155736038}
   m_Layer: 0
   m_Name: WorldController
   m_TagString: Untagged
@@ -178,9 +179,31 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 155736034}
-  m_Enabled: 1
+  m_Enabled: 0
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 35346d0f3952222418b22d7e83a46718, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chunkSize: 16
+  worldHeight: 16
+  worldSizeInChunks: 1
+  cubeSize: 1
+  heightMultiplier: 20
+  noiseScale: 0.05
+  waterLevel: 5
+  stoneHeightThreshold: 12
+  seed: 0
+  treeSpawnChance: 0.01
+--- !u!114 &155736038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 155736034}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8b89380919b122e43ab328edeebfd274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   chunkSize: 16
@@ -191,6 +214,8 @@ MonoBehaviour:
   noiseScale: 0.05
   waterLevel: 5
   stoneHeightThreshold: 12
+  treeSpawnChance: 0.01
+  seed: 0
 --- !u!1 &705507993
 GameObject:
   m_ObjectHideFlags: 0
