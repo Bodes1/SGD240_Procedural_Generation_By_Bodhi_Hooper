@@ -212,13 +212,13 @@ MonoBehaviour:
   woodMaterial: {fileID: 2100000, guid: 3ff9841600228c447842318f6e054ea0, type: 2}
   leafMaterial: {fileID: 2100000, guid: 2064d80d4cd4bcb4997ec32398dd9e56, type: 2}
   chunkSize: 16
-  worldHeight: 30
-  worldSizeInChunks: 8
+  worldHeight: 50
+  worldSizeInChunks: 4
   cubeSize: 1
-  heightMultiplier: 20
+  heightMultiplier: 30
   noiseScale: 0.05
   waterLevel: 5
-  stoneHeightThreshold: 12
+  stoneHeightThreshold: 20
   treeSpawnChance: 0.01
   seed: 0
 --- !u!1 &705507993

@@ -131,7 +131,10 @@ public class TestGeneration : MonoBehaviour
     {
         if (combineInstances.Count == 0) return; // Skip if no cubes of this type
 
-        Mesh combinedMesh = new Mesh();
+        Mesh combinedMesh = new Mesh
+        {
+            indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 // Set to UInt32 to support large vertex counts
+        };
         combinedMesh.CombineMeshes(combineInstances.ToArray(), true, true);
 
         GameObject combinedObject = new GameObject(material.name + "_Mesh");
