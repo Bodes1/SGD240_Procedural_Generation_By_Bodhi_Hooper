@@ -165,7 +165,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 155736034}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 25.130903, y: 22.527391, z: -12.907746}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -206,9 +206,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8b89380919b122e43ab328edeebfd274, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  waterMaterial: {fileID: 2100000, guid: 096551523daa5d649b1bd480e99accd2, type: 2}
+  grassMaterial: {fileID: 2100000, guid: 513f9afedc6f23e4bba6ac452f15f840, type: 2}
+  stoneMaterial: {fileID: 2100000, guid: 32bf4497ef152f74289359c132796539, type: 2}
+  woodMaterial: {fileID: 2100000, guid: 3ff9841600228c447842318f6e054ea0, type: 2}
+  leafMaterial: {fileID: 2100000, guid: 2064d80d4cd4bcb4997ec32398dd9e56, type: 2}
   chunkSize: 16
-  worldHeight: 16
-  worldSizeInChunks: 4
+  worldHeight: 30
+  worldSizeInChunks: 8
   cubeSize: 1
   heightMultiplier: 20
   noiseScale: 0.05

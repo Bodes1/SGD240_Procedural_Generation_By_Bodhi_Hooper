@@ -5,6 +5,13 @@ using UnityEngine;
 
 public class TestGeneration : MonoBehaviour
 {
+    // Public material fields to assign in the Unity Editor
+    public Material waterMaterial;
+    public Material grassMaterial;
+    public Material stoneMaterial;
+    public Material woodMaterial;
+    public Material leafMaterial;
+
     // Chunk size and settings
     public Int32 chunkSize = 16;
     public Int32 worldHeight = 16;
@@ -46,9 +53,15 @@ public class TestGeneration : MonoBehaviour
 
     void GenerateChunk(Int32 chunkX, Int32 chunkZ)
     {
-        List<CombineInstance> combineInstances = new List<CombineInstance>();
-        GameObject chunkObject = new GameObject($"Chunk_{chunkX}_{chunkZ}");
+        GameObject chunkObject = new GameObject($"Chunk_{chunkX}_{chunkZ}"); // Create a parent GameObject for the chunk
         chunkObject.transform.position = new Vector3(chunkX * chunkSize * cubeSize, 0, chunkZ * chunkSize * cubeSize);
+
+        // Separate lists for each material type
+        List<CombineInstance> grassCombineInstances = new List<CombineInstance>();
+        List<CombineInstance> waterCombineInstances = new List<CombineInstance>();
+        List<CombineInstance> stoneCombineInstances = new List<CombineInstance>();
+        List<CombineInstance> woodCombineInstances = new List<CombineInstance>();
+        List<CombineInstance> leafCombineInstances = new List<CombineInstance>();
 
         for (Int32 x = 0; x < chunkSize; x++)
         {
@@ -67,45 +80,41 @@ public class TestGeneration : MonoBehaviour
                 {
                     if (y <= terrainHeight)
                     {
-                        Color blockColor = y < waterLevel ? Color.blue : (y < stoneHeightThreshold ? Color.green : Color.gray);
-                        AddCubeToMesh(new Vector3(worldX * cubeSize, y * cubeSize, worldZ * cubeSize), blockColor, combineInstances);
+                        if (y < waterLevel)
+                            AddCubeToMesh(new Vector3(worldX * cubeSize, y * cubeSize, worldZ * cubeSize), waterCombineInstances);
+                        else if (y < stoneHeightThreshold)
+                            AddCubeToMesh(new Vector3(worldX * cubeSize, y * cubeSize, worldZ * cubeSize), grassCombineInstances);
+                        else
+                            AddCubeToMesh(new Vector3(worldX * cubeSize, y * cubeSize, worldZ * cubeSize), stoneCombineInstances);
                     }
                     else if (y < waterLevel)
                     {
-                        AddCubeToMesh(new Vector3(worldX * cubeSize, y * cubeSize, worldZ * cubeSize), Color.blue, combineInstances);
+                        AddCubeToMesh(new Vector3(worldX * cubeSize, y * cubeSize, worldZ * cubeSize), waterCombineInstances);
                     }
                 }
 
                 // Place trees on grass blocks
                 if (terrainHeight >= waterLevel && terrainHeight < stoneHeightThreshold && UnityEngine.Random.value < treeSpawnChance)
                 {
-                    PlaceTree(worldX, terrainHeight + 1, worldZ, combineInstances);
+                    PlaceTree(worldX, terrainHeight + 1, worldZ, woodCombineInstances, leafCombineInstances);
                 }
             }
         }
 
-        // Combine the meshes into a single chunk mesh
-        Mesh combinedMesh = new Mesh();
-        combinedMesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32; // Set to UInt32 for large meshes
-        combinedMesh.CombineMeshes(combineInstances.ToArray(), true, true);
-
-        MeshFilter meshFilter = chunkObject.AddComponent<MeshFilter>();
-        meshFilter.mesh = combinedMesh;
-
-        MeshRenderer renderer = chunkObject.AddComponent<MeshRenderer>();
-        renderer.material = new Material(Shader.Find("Standard"));
+        // Combine and apply materials for each block type
+        CreateCombinedMesh(chunkObject, grassCombineInstances, grassMaterial);
+        CreateCombinedMesh(chunkObject, waterCombineInstances, waterMaterial);
+        CreateCombinedMesh(chunkObject, stoneCombineInstances, stoneMaterial);
+        CreateCombinedMesh(chunkObject, woodCombineInstances, woodMaterial);
+        CreateCombinedMesh(chunkObject, leafCombineInstances, leafMaterial);
     }
 
-    void AddCubeToMesh(Vector3 position, Color color, List<CombineInstance> combineInstances)
+    void AddCubeToMesh(Vector3 position, List<CombineInstance> combineInstances)
     {
         // Create a temporary cube object to extract its mesh data
         GameObject tempCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         tempCube.transform.position = position;
         tempCube.transform.localScale = Vector3.one * cubeSize;
-
-        // Set color (this will require multiple materials if different colors are used per block type)
-        Renderer tempRenderer = tempCube.GetComponent<Renderer>();
-        tempRenderer.material.color = color;
 
         // Add to combine instances
         CombineInstance combineInstance = new CombineInstance
@@ -118,19 +127,47 @@ public class TestGeneration : MonoBehaviour
         Destroy(tempCube);  // Remove the temporary cube
     }
 
-    void PlaceTree(Int32 x, Int32 y, Int32 z, List<CombineInstance> combineInstances)
+    void CreateCombinedMesh(GameObject parent, List<CombineInstance> combineInstances, Material material)
     {
-        // Tree trunk and leaf colors
-        Color trunkColor = new Color(0.55f, 0.27f, 0.07f);
-        Color leafColor = Color.green;
+        if (combineInstances.Count == 0) return; // Skip if no cubes of this type
 
+        Mesh combinedMesh = new Mesh();
+        combinedMesh.CombineMeshes(combineInstances.ToArray(), true, true);
+
+        GameObject combinedObject = new GameObject(material.name + "_Mesh");
+        combinedObject.transform.parent = parent.transform;
+
+        MeshFilter meshFilter = combinedObject.AddComponent<MeshFilter>();
+        meshFilter.mesh = combinedMesh;
+
+        MeshRenderer renderer = combinedObject.AddComponent<MeshRenderer>();
+        renderer.material = material;
+    }
+
+    void PlaceTree(Int32 x, Int32 y, Int32 z, List<CombineInstance> woodCombineInstances, List<CombineInstance> leafCombineInstances)
+    {
         // Place 3 cubes as the tree trunk
         for (Int32 i = 0; i < 3; i++)
         {
-            AddCubeToMesh(new Vector3(x * cubeSize, (y + i) * cubeSize, z * cubeSize), trunkColor, combineInstances);
+            AddCubeToMesh(new Vector3(x * cubeSize, (y + i) * cubeSize, z * cubeSize), woodCombineInstances);
         }
 
         // Add a green "leaf" cube at the top
-        AddCubeToMesh(new Vector3(x * cubeSize, (y + 3) * cubeSize, z * cubeSize), leafColor, combineInstances);
+        AddCubeToMesh(new Vector3(x * cubeSize, (y + 3) * cubeSize, z * cubeSize), leafCombineInstances);
     }
+
+    // Draw chunk outline
+    //void OnDrawGizmos()
+    //{
+    //    Gizmos.color = Color.red;
+    //    for (Int32 chunkX = 0; chunkX < worldSizeInChunks; chunkX++)
+    //    {
+    //        for (Int32 chunkZ = 0; chunkZ < worldSizeInChunks; chunkZ++)
+    //        {
+    //            Vector3 chunkPosition = new Vector3(chunkX * chunkSize * cubeSize, 0, chunkZ * chunkSize * cubeSize);
+    //            Gizmos.DrawWireCube(chunkPosition + new Vector3(chunkSize * cubeSize / 2, worldHeight * cubeSize / 2, chunkSize * cubeSize / 2),
+    //                                new Vector3(chunkSize * cubeSize, worldHeight * cubeSize, chunkSize * cubeSize));
+    //        }
+    //    }
+    //}
 }
