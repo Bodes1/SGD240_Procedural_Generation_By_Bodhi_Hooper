@@ -211,15 +211,19 @@ MonoBehaviour:
   stoneMaterial: {fileID: 2100000, guid: 32bf4497ef152f74289359c132796539, type: 2}
   woodMaterial: {fileID: 2100000, guid: 3ff9841600228c447842318f6e054ea0, type: 2}
   leafMaterial: {fileID: 2100000, guid: 2064d80d4cd4bcb4997ec32398dd9e56, type: 2}
+  coalMaterial: {fileID: 2100000, guid: b98c616276151554a8abf522e355334b, type: 2}
+  ironMaterial: {fileID: 2100000, guid: a5933a092ed8ee747b9e7d336b7d3625, type: 2}
   chunkSize: 16
   worldHeight: 50
-  worldSizeInChunks: 4
+  worldSizeInChunks: 6
   cubeSize: 1
-  heightMultiplier: 30
+  heightMultiplier: 27
   noiseScale: 0.05
   waterLevel: 5
   stoneHeightThreshold: 20
   treeSpawnChance: 0.01
+  oreSpawnChance: 0.1
+  maxOreClusterSize: 3
   seed: 0
 --- !u!1 &705507993
 GameObject:
