@@ -20,33 +20,33 @@ public class CubeProceduralGeneration : MonoBehaviour
     public Material purpleFlowerMaterial;
 
     // Chunk size and settings
-    public Int32 chunkSize = 16;
-    public Int32 worldHeight = 16;
-    public Int32 worldSizeInChunks = 4;
+    public Int32 chunkSize = 16; // Number of blocks along each side of a chunk
+    public Int32 worldHeight = 16; // Maximum height of terrain
+    public Int32 worldSizeInChunks = 4; // Number of chunks along each axis in the world
 
     // Noise and height settings
-    public float cubeSize = 1.0f;
-    public float heightMultiplier = 5f;
-    public float noiseScale = 0.1f;
-    public Int32 waterLevel = 4;
-    public Int32 stoneHeightThreshold = 12;
+    public float cubeSize = 1.0f; // Size of each cube
+    public float heightMultiplier = 5f; // Multiplier for terrain height based on noise
+    public float noiseScale = 0.1f; // Scale for Perlin noise used in terrain generation
+    public Int32 waterLevel = 4; // Height below which water will be placed
+    public Int32 stoneHeightThreshold = 12; // Height above which stone terrain will be generated
 
     // Tree generation
     [Range(0f, 1f)]
-    public float treeSpawnChance = 0.1f;
+    public float treeSpawnChance = 0.1f; // Chance for trees to spawn on grass blocks
 
     // Flower generation
     [Range(0f, 1f)]
-    public float flowerSpawnChance = 0.1f;
-    private Vector3 flowerScale = new Vector3(0.5f, 1f, 0.5f); // Width and length are half, height is one cube
+    public float flowerSpawnChance = 0.1f; // Chance for flowers to spawn on grass blocks
+    private Vector3 flowerScale = new Vector3(0.5f, 1f, 0.5f); // Scale for flower cubes: half-width, full height
 
     // Ore generation
     [Range(0f, 1f)]
-    public float oreSpawnChance = 0.1f;
-    public Int32 maxOreClusterSize = 3;
+    public float oreSpawnChance = 0.1f; // Chance for ore clusters to spawn on stone blocks
+    public Int32 maxOreClusterSize = 3; // Maximum size of an ore cluster
 
     // Seed for random generation
-    public Int32 seed;
+    public Int32 seed; // Random seed to ensure repeatable terrain generation
 
     void Start()
     {
@@ -54,23 +54,25 @@ public class CubeProceduralGeneration : MonoBehaviour
         if (seed == 0)
             seed = UnityEngine.Random.Range(1, 100000);
 
-        GenerateWorld();
+        GenerateWorld(); // Start world generation
     }
 
     void GenerateWorld()
     {
+        // Generate chunks in a grid based on world size in chunks
         for (Int32 chunkX = 0; chunkX < worldSizeInChunks; chunkX++)
         {
             for (Int32 chunkZ = 0; chunkZ < worldSizeInChunks; chunkZ++)
             {
-                GenerateChunk(chunkX, chunkZ);
+                GenerateChunk(chunkX, chunkZ); // Generate each chunk
             }
         }
     }
 
     void GenerateChunk(Int32 chunkX, Int32 chunkZ)
     {
-        GameObject chunkObject = new GameObject($"Chunk_{chunkX}_{chunkZ}"); // Create a parent GameObject for the chunk
+        // Create a parent GameObject for the chunk to organize all its blocks
+        GameObject chunkObject = new GameObject($"Chunk_{chunkX}_{chunkZ}"); 
         chunkObject.transform.position = new Vector3(chunkX * chunkSize * cubeSize, 0, chunkZ * chunkSize * cubeSize);
 
         // Separate lists for each material type
@@ -81,26 +83,27 @@ public class CubeProceduralGeneration : MonoBehaviour
         List<CombineInstance> leafCombineInstances = new List<CombineInstance>();
         List<CombineInstance> coalCombineInstances = new List<CombineInstance>();
         List<CombineInstance> ironCombineInstances = new List<CombineInstance>();
-        List<CombineInstance> flowerCombineInstances = new List<CombineInstance>(); // For flower meshes
         List<CombineInstance> redFlowerCombineInstances = new List<CombineInstance>();
         List<CombineInstance> yellowFlowerCombineInstances = new List<CombineInstance>();
         List<CombineInstance> purpleFlowerCombineInstances = new List<CombineInstance>();
 
+        // Track placed blocks to prevent overlapping
         HashSet<Vector3> placedPositions = new HashSet<Vector3>(); // Track placed blocks
 
+        // Loop through each block in the chunk
         for (Int32 x = 0; x < chunkSize; x++)
         {
             for (Int32 z = 0; z < chunkSize; z++)
             {
-                // Calculate world position for each cube
+                // Calculate world position for each block
                 Int32 worldX = x + (chunkX * chunkSize);
                 Int32 worldZ = z + (chunkZ * chunkSize);
 
-                // Apply seed offset to the Perlin noise for randomization
+                // Apply noise to determine terrain height at this position
                 float perlinValue = Mathf.PerlinNoise((worldX + seed) * noiseScale, (worldZ + seed) * noiseScale);
                 Int32 terrainHeight = Mathf.FloorToInt(perlinValue * heightMultiplier);
 
-                // Generate terrain up to the calculated terrain height
+                // Generate blocks up to terrain height
                 for (Int32 y = 0; y < worldHeight; y++)
                 {
                     Vector3 blockPosition = new Vector3(worldX * cubeSize, y * cubeSize, worldZ * cubeSize);
@@ -109,10 +112,12 @@ public class CubeProceduralGeneration : MonoBehaviour
                     {
                         if (y < waterLevel)
                         {
+                            // Place water below water level
                             AddCubeToMesh(blockPosition, waterCombineInstances);
                         }
                         else if (y < stoneHeightThreshold)
                         {
+                            // Place grass blocks and allow for trees and flowers
                             AddCubeToMesh(blockPosition, grassCombineInstances);
                             placedPositions.Add(blockPosition); // Mark grass position
 
@@ -124,6 +129,7 @@ public class CubeProceduralGeneration : MonoBehaviour
                         }
                         else
                         {
+                            // Place stone blocks and ores
                             AddCubeToMesh(blockPosition, stoneCombineInstances);
                             placedPositions.Add(blockPosition); // Track stone position
 
@@ -136,6 +142,7 @@ public class CubeProceduralGeneration : MonoBehaviour
                     }
                     else if (y < waterLevel)
                     {
+                        // Place water below terrain level up to water height
                         AddCubeToMesh(blockPosition, waterCombineInstances);
                     }
                 }
@@ -163,12 +170,12 @@ public class CubeProceduralGeneration : MonoBehaviour
 
     void AddCubeToMesh(Vector3 position, List<CombineInstance> combineInstances)
     {
-        // Create a temporary cube object to extract its mesh data
+        // Temporary cube for mesh extraction
         GameObject tempCube = GameObject.CreatePrimitive(PrimitiveType.Cube);
         tempCube.transform.position = position;
         tempCube.transform.localScale = Vector3.one * cubeSize;
 
-        // Add to combine instances
+        // Store cube mesh for combining
         CombineInstance combineInstance = new CombineInstance
         {
             mesh = tempCube.GetComponent<MeshFilter>().mesh,
@@ -176,19 +183,21 @@ public class CubeProceduralGeneration : MonoBehaviour
         };
         combineInstances.Add(combineInstance);
 
-        Destroy(tempCube);  // Remove the temporary cube
+        Destroy(tempCube);  // Cleanup temporary object
     }
 
     void CreateCombinedMesh(GameObject parent, List<CombineInstance> combineInstances, Material material)
     {
-        if (combineInstances.Count == 0) return; // Skip if no cubes of this type
+        if (combineInstances.Count == 0) return; // Skip empty combine lists
 
+        // Create combined mesh
         Mesh combinedMesh = new Mesh
         {
-            indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 // Set to UInt32 to support large vertex counts
+            indexFormat = UnityEngine.Rendering.IndexFormat.UInt32 // Large vertex support
         };
         combinedMesh.CombineMeshes(combineInstances.ToArray(), true, true);
 
+        // Create GameObject for combined mesh and apply material
         GameObject combinedObject = new GameObject(material.name + "_Mesh");
         combinedObject.transform.parent = parent.transform;
 
@@ -203,13 +212,13 @@ public class CubeProceduralGeneration : MonoBehaviour
     {
         Int32 woodPlaced = UnityEngine.Random.Range(2, 5);
 
-        // Place 3 cubes as the tree trunk
+        // Build tree trunk with 2-4 wood cubes
         for (Int32 i = 0; i < woodPlaced; i++)
         {
             AddCubeToMesh(new Vector3(x * cubeSize, (y + i) * cubeSize, z * cubeSize), woodCombineInstances);
         }
 
-        // Add a green "leaf" cube at the top
+        // Add leaf at top of tree
         AddCubeToMesh(new Vector3(x * cubeSize, (y + woodPlaced) * cubeSize, z * cubeSize), leafCombineInstances);
     }
 
@@ -217,12 +226,12 @@ public class CubeProceduralGeneration : MonoBehaviour
     {
         Vector3 flowerPosition = new Vector3(x * cubeSize, y * cubeSize, z * cubeSize);
 
-        // Create a temporary cube to represent the flower
+        // Temporary cube for flower mesh
         GameObject tempFlower = GameObject.CreatePrimitive(PrimitiveType.Cube);
         tempFlower.transform.position = flowerPosition;
         tempFlower.transform.localScale = flowerScale;
 
-        // Randomly select a material for the flower and add to respective list
+        // Randomize flower color and add to respective list
         float randomValue = UnityEngine.Random.value;
         CombineInstance combineInstance = new CombineInstance
         {
@@ -237,7 +246,7 @@ public class CubeProceduralGeneration : MonoBehaviour
         else
             purpleFlowerCombineInstances.Add(combineInstance);
 
-        Destroy(tempFlower);  // Clean up temporary object
+        Destroy(tempFlower);  // Cleanup
     }
 
     void PlaceOreCluster(Int32 x, Int32 y, Int32 z, List<CombineInstance> coalCombineInstances, List<CombineInstance> ironCombineInstances, HashSet<Vector3> placedPositions)
@@ -246,7 +255,7 @@ public class CubeProceduralGeneration : MonoBehaviour
 
         for (Int32 i = 0; i < clusterSize; i++)
         {
-            // Random offset for clustered ores
+            // Random offset for cluster placement
             Int32 offsetX = UnityEngine.Random.Range(-1, 2);
             Int32 offsetY = UnityEngine.Random.Range(-1, 2);
             Int32 offsetZ = UnityEngine.Random.Range(-1, 2);
@@ -274,19 +283,4 @@ public class CubeProceduralGeneration : MonoBehaviour
             }
         }
     }
-
-    // Draw chunk outline
-    //void OnDrawGizmos()
-    //{
-    //    Gizmos.color = Color.red;
-    //    for (Int32 chunkX = 0; chunkX < worldSizeInChunks; chunkX++)
-    //    {
-    //        for (Int32 chunkZ = 0; chunkZ < worldSizeInChunks; chunkZ++)
-    //        {
-    //            Vector3 chunkPosition = new Vector3(chunkX * chunkSize * cubeSize, 0, chunkZ * chunkSize * cubeSize);
-    //            Gizmos.DrawWireCube(chunkPosition + new Vector3(chunkSize * cubeSize / 2, worldHeight * cubeSize / 2, chunkSize * cubeSize / 2),
-    //                                new Vector3(chunkSize * cubeSize, worldHeight * cubeSize, chunkSize * cubeSize));
-    //        }
-    //    }
-    //}
 }
