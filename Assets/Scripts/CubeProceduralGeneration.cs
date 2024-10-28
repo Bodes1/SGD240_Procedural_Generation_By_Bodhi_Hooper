@@ -15,6 +15,9 @@ public class CubeProceduralGeneration : MonoBehaviour
     public Material leafMaterial;
     public Material coalMaterial;
     public Material ironMaterial;
+    public Material redFlowerMaterial;
+    public Material yellowFlowerMaterial;
+    public Material purpleFlowerMaterial;
 
     // Chunk size and settings
     public Int32 chunkSize = 16;
@@ -31,6 +34,11 @@ public class CubeProceduralGeneration : MonoBehaviour
     // Tree generation
     [Range(0f, 1f)]
     public float treeSpawnChance = 0.1f;
+
+    // Flower generation
+    [Range(0f, 1f)]
+    public float flowerSpawnChance = 0.1f;
+    private Vector3 flowerScale = new Vector3(0.5f, 1f, 0.5f); // Width and length are half, height is one cube
 
     // Ore generation
     [Range(0f, 1f)]
@@ -73,6 +81,10 @@ public class CubeProceduralGeneration : MonoBehaviour
         List<CombineInstance> leafCombineInstances = new List<CombineInstance>();
         List<CombineInstance> coalCombineInstances = new List<CombineInstance>();
         List<CombineInstance> ironCombineInstances = new List<CombineInstance>();
+        List<CombineInstance> flowerCombineInstances = new List<CombineInstance>(); // For flower meshes
+        List<CombineInstance> redFlowerCombineInstances = new List<CombineInstance>();
+        List<CombineInstance> yellowFlowerCombineInstances = new List<CombineInstance>();
+        List<CombineInstance> purpleFlowerCombineInstances = new List<CombineInstance>();
 
         HashSet<Vector3> placedPositions = new HashSet<Vector3>(); // Track placed blocks
 
@@ -102,6 +114,13 @@ public class CubeProceduralGeneration : MonoBehaviour
                         else if (y < stoneHeightThreshold)
                         {
                             AddCubeToMesh(blockPosition, grassCombineInstances);
+                            placedPositions.Add(blockPosition); // Mark grass position
+
+                            // Spawn flowers on top of grass blocks with a certain probability
+                            if (y == terrainHeight && UnityEngine.Random.value < flowerSpawnChance)
+                            {
+                                PlaceFlower(worldX, y + 1, worldZ, redFlowerCombineInstances, yellowFlowerCombineInstances, purpleFlowerCombineInstances);
+                            }
                         }
                         else
                         {
@@ -137,6 +156,9 @@ public class CubeProceduralGeneration : MonoBehaviour
         CreateCombinedMesh(chunkObject, leafCombineInstances, leafMaterial);
         CreateCombinedMesh(chunkObject, coalCombineInstances, coalMaterial);
         CreateCombinedMesh(chunkObject, ironCombineInstances, ironMaterial);
+        CreateCombinedMesh(chunkObject, redFlowerCombineInstances, redFlowerMaterial);
+        CreateCombinedMesh(chunkObject, yellowFlowerCombineInstances, yellowFlowerMaterial);
+        CreateCombinedMesh(chunkObject, purpleFlowerCombineInstances, purpleFlowerMaterial);
     }
 
     void AddCubeToMesh(Vector3 position, List<CombineInstance> combineInstances)
@@ -189,6 +211,33 @@ public class CubeProceduralGeneration : MonoBehaviour
 
         // Add a green "leaf" cube at the top
         AddCubeToMesh(new Vector3(x * cubeSize, (y + woodPlaced) * cubeSize, z * cubeSize), leafCombineInstances);
+    }
+
+    void PlaceFlower(int x, int y, int z, List<CombineInstance> redFlowerCombineInstances, List<CombineInstance> yellowFlowerCombineInstances, List<CombineInstance> purpleFlowerCombineInstances)
+    {
+        Vector3 flowerPosition = new Vector3(x * cubeSize, y * cubeSize, z * cubeSize);
+
+        // Create a temporary cube to represent the flower
+        GameObject tempFlower = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        tempFlower.transform.position = flowerPosition;
+        tempFlower.transform.localScale = flowerScale;
+
+        // Randomly select a material for the flower and add to respective list
+        float randomValue = UnityEngine.Random.value;
+        CombineInstance combineInstance = new CombineInstance
+        {
+            mesh = tempFlower.GetComponent<MeshFilter>().mesh,
+            transform = tempFlower.transform.localToWorldMatrix
+        };
+
+        if (randomValue < 0.33f)
+            redFlowerCombineInstances.Add(combineInstance);
+        else if (randomValue < 0.66f)
+            yellowFlowerCombineInstances.Add(combineInstance);
+        else
+            purpleFlowerCombineInstances.Add(combineInstance);
+
+        Destroy(tempFlower);  // Clean up temporary object
     }
 
     void PlaceOreCluster(Int32 x, Int32 y, Int32 z, List<CombineInstance> coalCombineInstances, List<CombineInstance> ironCombineInstances, HashSet<Vector3> placedPositions)

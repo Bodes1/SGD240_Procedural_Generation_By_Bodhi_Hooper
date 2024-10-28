@@ -213,6 +213,9 @@ MonoBehaviour:
   leafMaterial: {fileID: 2100000, guid: 2064d80d4cd4bcb4997ec32398dd9e56, type: 2}
   coalMaterial: {fileID: 2100000, guid: b98c616276151554a8abf522e355334b, type: 2}
   ironMaterial: {fileID: 2100000, guid: a5933a092ed8ee747b9e7d336b7d3625, type: 2}
+  redFlowerMaterial: {fileID: 2100000, guid: c85f65f755cfbc248ade9cfb315ff256, type: 2}
+  yellowFlowerMaterial: {fileID: 2100000, guid: 667a84f5515b56c4cb82998b02a5218d, type: 2}
+  purpleFlowerMaterial: {fileID: 2100000, guid: 18ffe7cb6fcfff343aadda435bbad9e2, type: 2}
   chunkSize: 16
   worldHeight: 50
   worldSizeInChunks: 6
@@ -222,6 +225,7 @@ MonoBehaviour:
   waterLevel: 5
   stoneHeightThreshold: 20
   treeSpawnChance: 0.01
+  flowerSpawnChance: 0.05
   oreSpawnChance: 0.1
   maxOreClusterSize: 3
   seed: 0
